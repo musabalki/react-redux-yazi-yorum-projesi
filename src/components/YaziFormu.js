@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { api } from "../api";
 import { useParams, useHistory } from "react-router-dom";
-
+import { useDispatch } from "react-redux";
+import {yaziGuncelle} from "../actions"
 const YaziFormu = (props) => {
   const [yazi, setYazi] = useState({
     title: "",
@@ -11,24 +12,18 @@ const YaziFormu = (props) => {
 
   const { id } = useParams();
   const history = useHistory();
-
+  const {push}=useHistory();
   const onInputChange = (event) =>
     setYazi({ ...yazi, [event.target.name]: event.target.value });
+  const dispatch=useDispatch();
 
   const onFormSubmit = (event) => {
     event.preventDefault();
     setHata("");
 
-    if (props.yazi.title) {
-      api()
-        .put(`/posts/${id}`, yazi)
-        .then((response) => {
-          console.log(response);
-          history.push(`/posts/${id}`);
-        })
-        .catch((error) => {
-          setHata("Başlık ve yazı içeriği alanları zorunludur.");
-        });
+    if (props.yazi?.title) {
+      dispatch(yaziGuncelle(id,yazi,push))
+    
     } else {
       api()
         .post("/posts", yazi)
@@ -42,7 +37,7 @@ const YaziFormu = (props) => {
   };
 
   useEffect(() => {
-    if (props.yazi?.title && props.yazi?.content) setYazi(props.yazi);
+    if (props.yazi?.title && props.yazi?.content) setYazi({title:props.yazi.title,content:props.yazi.content});
   }, [props.yazi]);
 
   return (
